@@ -665,7 +665,7 @@ def quit_qemu(child):
 
 def start_qgem5(input_dir, outdir, cmd, options):
     os.chdir(input_dir)
-    command = 'time ' + GEM5_COMMAND.format(outdir, cmd, options)
+    command = 'time ' + QGEM5_COMMAND.format(outdir, cmd, options)
     child = pexpect.spawn('bash', ['-c', command], timeout=TIMEOUT)
     logging.info('gem5 started.')
     logging.info(command)
