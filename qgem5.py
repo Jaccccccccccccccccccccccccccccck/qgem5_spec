@@ -748,7 +748,6 @@ def qgem5(benchmarks):
             logging.error("execute " + bench['name'] + "failed. ")
             quit_qemu(qchild)
             quit_gem5(rchild)
-            exit()
         logging.info(bench['name'] + " finished.")
         quit_qemu(qchild)
     logging.info("all benchmark finished!")
