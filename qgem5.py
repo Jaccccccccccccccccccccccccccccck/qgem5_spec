@@ -744,12 +744,13 @@ def qgem5(benchmarks):
         )
         if check_qemu(qchild) and check_gem5(rchild):
             quit_gem5(rchild)
+            quit_qemu(qchild)
         else:
             logging.error("execute " + bench['name'] + "failed. ")
-            quit_qemu(qchild)
             quit_gem5(rchild)
+            quit_qemu(qchild)
         logging.info(bench['name'] + " finished.")
-        quit_qemu(qchild)
+
     logging.info("all benchmark finished!")
 
 
