@@ -715,11 +715,10 @@ def start_app(qchild, bench):
 
 def check_qemu(child):
     logging.info('check qemu')
-    child.expect("# ", timeout=TIMEOUT)
-    output = child.before
+    index = child.expect("# ", timeout=TIMEOUT)
     logging.info(
         "\n qemu cmd output------------------------\n" + child.before + "\n qemu output end------------------------")
-    return 'into outreg_end_callback' in output
+    return index == 0
 
 
 def check_gem5(child):
