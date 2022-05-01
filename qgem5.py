@@ -25,6 +25,7 @@ os.environ['LD_LIBRARY_PATH'] = os.environ['HOME'] + '/qr'
 benchmark_base_dir = '/home'
 OUT_PATH = '/home/test/'
 QEMU_PATH = '/home/workspace/interqrio/qemu-4.1.1/aarch64-softmmu/'
+ONLY_QEMU_PATH = '/home/workspace/interqrio-only-qemu/qemu-4.1.1/aarch64-softmmu/'  # for only qemu
 QEMU_GEM5_PATH = '/home/workspace/qemu-gem5/gem5-21.1.0.2/'
 GEM5_PATH = '/home/workspace/gem5/'
 KERNEL_PATH = '/home/Image4.4'
@@ -34,6 +35,17 @@ HDA_PATH = '/home/ppi_benchmark_210928.img'
 TIMEOUT = 86400000
 
 QEMU_COMMAND = QEMU_PATH + 'qemu-system-aarch64 \
+    -qrtag -machine virt,virtualization=true,gic-version=3 -nographic \
+    -m size=1024M \
+    -cpu cortex-a57 \
+    -smp cpus=1 \
+    -kernel ' + KERNEL_PATH + ' \
+    -hda ' + HDA_PATH + ' \
+    -append "root=/dev/vda rw console=ttyAMA0 rdinit=/linuxrc" \
+    -channel ' + CHANNEL + ' \
+    -clockRate 1'
+
+ONLY_QEMU_COMMAND = ONLY_QEMU_PATH + 'qemu-system-aarch64 \
     -qrtag -machine virt,virtualization=true,gic-version=3 -nographic \
     -m size=1024M \
     -cpu cortex-a57 \
@@ -657,6 +669,22 @@ def start_qemu():
         return None
 
 
+def start_only_qemu():
+    qemu_cmd = ONLY_QEMU_COMMAND
+    logging.info(qemu_cmd)
+    child = pexpect.spawn('bash', ['-c', qemu_cmd], timeout=TIMEOUT)
+    index = child.expect(["Please press Enter to activate this console."])
+    if (index == 0):
+        child.send('\n')
+        child.expect(["#"])
+        logging.info('qemu started.')
+        return child
+    else:
+        logging.info("start qemu failed.")
+        quit_qemu(child)
+        return None
+
+
 def quit_qemu(child):
     child.sendcontrol('a')
     child.send('x')
@@ -728,7 +756,7 @@ def qgem5(benchmarks):
 
 def qemu(benchmarks):
     for bench in benchmarks:
-        qchild = start_qemu()
+        qchild = start_only_qemu()
         logging.info(bench['name'] + " running.")
         start = time.time()
         start_app(qchild, bench)
