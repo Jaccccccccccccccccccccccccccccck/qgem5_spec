@@ -765,7 +765,7 @@ def qemu(benchmarks):
         end = time.time()
         m, s = divmod(end - start, 60)
         h, m = divmod(m, 60)
-        logging.info(bench['name'] + " finished. run time: %02dh%02dm%02ds" % (h, m, s))
+        logging.info(bench['name'] + " finished. run time: %02dh%02dm%.2fs" % (h, m, s))
         time.sleep(1)
         quit_qemu(qchild)
     logging.info("all benchmark finished!")
