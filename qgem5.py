@@ -18,6 +18,7 @@ parser.add_argument("--benchmark_type", type=str)
 parser.add_argument("--benchmark_index", type=int)
 parser.add_argument("--cache_options", type=str, default='')
 parser.add_argument("--out_base_path", type=str, default='/home/test/')
+parser.add_argument("--version", type=str, default='default')
 args = parser.parse_args()
 
 CHANNEL = str(args.channel)
@@ -65,7 +66,7 @@ QGEM5_COMMAND = QEMU_GEM5_PATH + 'build/ARM/gem5.opt \
     --cmd={} \
     --options="{}" \
     --cpu-type=TimingSimpleCPU \
-    --caches {} \
+     {} \
     --mem-size=1099511627775'
 
 GEM5_COMMAND = 'nohup bash -c \'time ' + GEM5_PATH + 'build/ARM/gem5.opt ' \
@@ -73,10 +74,10 @@ GEM5_COMMAND = 'nohup bash -c \'time ' + GEM5_PATH + 'build/ARM/gem5.opt ' \
                + GEM5_PATH + 'configs/example/seL3.py ' \
                              '--cpu-type=TimingSimpleCPU ' \
                              '--mem-size=8GB ' \
-                             '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache ' \
+                             ' {} ' \
                              '-n 1 ' \
                              '--cmd={} ' \
-                             '--options="{}" > ' + OUT_PATH + 'gem5-script-{}.out & \''
+                             '--options="{}" > ' + OUT_PATH + 'gem5-{}-script-{}.out & \''
 
 ALL_TEST_BENCHMARKS = [
     {'name': '400.perlbench',
@@ -744,7 +745,7 @@ def qgem5(benchmarks, cache_options):
             benchmark_base_dir + bench['cmd'].split(" ", 1)[0],
             bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else '',
             cache_options
-            )
+        )
         if check_gem5(rchild):
             quit_gem5(rchild)
             quit_qemu(qchild)
@@ -776,13 +777,15 @@ def qemu(benchmarks):
     logging.info("all benchmark finished!")
 
 
-def gem5(benchmarks):
+def gem5(benchmarks, cache_options):
     for bench in benchmarks:
         cd_cmd = "cd " + benchmark_base_dir + bench['dir']
         gem5_run_spec_cmd = GEM5_COMMAND.format(
             OUT_PATH + 'gem5-' + bench['name'] + "-" + str(bench['index']) + '.m5out',
+            cache_options,
             benchmark_base_dir + bench['cmd'].split(" ", 1)[0],
             bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else '',
+            args.version,
             bench['name'] + "-" + str(bench['index'])
         )
         logging.info(cd_cmd + " && " + gem5_run_spec_cmd)
@@ -807,13 +810,25 @@ def get_benchmark(benchmark_type, benchmark, benchmark_index):
         bench_to_run = [bench for bench in bench_to_run if bench['index'] == args.benchmark_index]
     return bench_to_run
 
+cache_options = {
+    'default': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v1': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v2': '--l1d_size=32kB --l1i_size=32kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v3': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v4': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v5': '--l1d_size=32kB --l1i_size=32kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v6': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
+    'v7': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=2MB --l3cache',
+    'v8': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=1MB --l3cache',
+}
 
 if __name__ == '__main__':
     benchmarks_to_run = get_benchmark(args.benchmark_type, args.benchmark, args.benchmark_index)
     logging.info("all benchmarks to run: \n" + json.dumps(benchmarks_to_run, indent=2))
+    cache_options = cache_options[args.version]
     if args.mode == 'qemu':
         qemu(benchmarks_to_run)
     elif args.mode == 'gem5':
-        gem5(benchmarks_to_run)
+        gem5(benchmarks_to_run, cache_options)
     elif args.mode == 'qgem5':
-        qgem5(benchmarks_to_run, args.cache_options)
+        qgem5(benchmarks_to_run, cache_options)
