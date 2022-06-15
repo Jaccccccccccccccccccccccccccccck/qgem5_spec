@@ -16,6 +16,8 @@ parser.add_argument("--mode", type=str)
 parser.add_argument("--benchmark", type=str)
 parser.add_argument("--benchmark_type", type=str)
 parser.add_argument("--benchmark_index", type=int)
+parser.add_argument("--cache_options", type=str, default='')
+parser.add_argument("--out_base_path", type=str, default='/home/test/')
 args = parser.parse_args()
 
 CHANNEL = str(args.channel)
@@ -23,7 +25,7 @@ CHANNEL = str(args.channel)
 os.environ['LD_LIBRARY_PATH'] = os.environ['HOME'] + '/qr'
 
 benchmark_base_dir = '/home'
-OUT_PATH = '/home/test/'
+OUT_PATH = args.out_base_path
 QEMU_PATH = '/home/workspace/interqrio/qemu-4.1.1/aarch64-softmmu/'
 ONLY_QEMU_PATH = '/home/workspace/interqrio-only-qemu/qemu-4.1.1/aarch64-softmmu/'  # for only qemu
 QEMU_GEM5_PATH = '/home/workspace/qemu-gem5/gem5-21.1.0.2/'
@@ -58,23 +60,23 @@ ONLY_QEMU_COMMAND = ONLY_QEMU_PATH + 'qemu-system-aarch64 \
 
 QGEM5_COMMAND = QEMU_GEM5_PATH + 'build/ARM/gem5.opt \
     --outdir={}  \
-    ' + QEMU_GEM5_PATH + '/configs/example/se.py \
+    ' + QEMU_GEM5_PATH + '/configs/example/seL3.py \
     -n 1 \
     --cmd={} \
     --options="{}" \
     --cpu-type=TimingSimpleCPU \
-    --caches \
+    --caches {} \
     --mem-size=1099511627775'
 
 GEM5_COMMAND = 'nohup bash -c \'time ' + GEM5_PATH + 'build/ARM/gem5.opt ' \
-    '--outdir={} ' \
-    + GEM5_PATH + 'configs/example/se.py ' \
-    '--cpu-type=TimingSimpleCPU ' \
-    '--mem-size=8GB ' \
-    '--caches ' \
-    '-n 1 ' \
-    '--cmd={} ' \
-    '--options="{}" > ' + OUT_PATH + 'gem5-script-{}.out & \''
+                                                     '--outdir={} ' \
+               + GEM5_PATH + 'configs/example/seL3.py ' \
+                             '--cpu-type=TimingSimpleCPU ' \
+                             '--mem-size=8GB ' \
+                             '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache ' \
+                             '-n 1 ' \
+                             '--cmd={} ' \
+                             '--options="{}" > ' + OUT_PATH + 'gem5-script-{}.out & \''
 
 ALL_TEST_BENCHMARKS = [
     {'name': '400.perlbench',
@@ -688,12 +690,13 @@ def start_only_qemu():
 def quit_qemu(child):
     child.sendcontrol('a')
     child.send('x')
+    child.close()
     logging.info('quit from qemu')
 
 
-def start_qgem5(input_dir, outdir, cmd, options):
+def start_qgem5(input_dir, outdir, cmd, options, cache_options):
     os.chdir(input_dir)
-    command = 'time ' + QGEM5_COMMAND.format(outdir, cmd, options)
+    command = 'time ' + QGEM5_COMMAND.format(outdir, cmd, options, cache_options)
     child = pexpect.spawn('bash', ['-c', command], timeout=TIMEOUT)
     logging.info('gem5 started.')
     logging.info(command)
@@ -702,7 +705,7 @@ def start_qgem5(input_dir, outdir, cmd, options):
 
 def quit_gem5(child):
     child.close()
-    logging.info('quit from rio')
+    logging.info('quit from gem5')
 
 
 def start_app(qchild, bench):
@@ -729,7 +732,7 @@ def check_gem5(child):
     return index == 0
 
 
-def qgem5(benchmarks):
+def qgem5(benchmarks, cache_options):
     for bench in benchmarks:
         qchild = start_qemu()
         logging.info(bench['name'] + " running. ")
@@ -739,11 +742,13 @@ def qgem5(benchmarks):
             benchmark_base_dir + bench['dir'],
             OUT_PATH + 'qgem5-' + bench['name'] + "-" + str(bench['index']) + '.m5out',
             benchmark_base_dir + bench['cmd'].split(" ", 1)[0],
-            bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else ''
-        )
-        if check_qemu(qchild) and check_gem5(rchild):
+            bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else '',
+            cache_options
+            )
+        if check_gem5(rchild):
             quit_gem5(rchild)
             quit_qemu(qchild)
+            time.sleep(10)
         else:
             logging.error("execute " + bench['name'] + "failed. ")
             quit_gem5(rchild)
@@ -811,4 +816,4 @@ if __name__ == '__main__':
     elif args.mode == 'gem5':
         gem5(benchmarks_to_run)
     elif args.mode == 'qgem5':
-        qgem5(benchmarks_to_run)
+        qgem5(benchmarks_to_run, args.cache_options)
