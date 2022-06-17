@@ -810,6 +810,18 @@ def get_benchmark(benchmark_type, benchmark, benchmark_index):
         bench_to_run = [bench for bench in bench_to_run if bench['index'] == args.benchmark_index]
     return bench_to_run
 
+mode_options = {
+    'default': 'qgem5',
+    'v1': 'gem5',
+    'v2': 'gem5',
+    'v3': 'gem5',
+    'v4': 'qgem5',
+    'v5': 'qgem5',
+    'v6': 'qgem5',
+    'v7': 'qgem5',
+    'v8': 'qgem5'
+}
+
 cache_options = {
     'default': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
     'v1': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
@@ -818,17 +830,18 @@ cache_options = {
     'v4': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
     'v5': '--l1d_size=32kB --l1i_size=32kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
     'v6': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=4MB --l3cache',
-    'v7': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=2MB --l3cache',
-    'v8': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=512kB --l2cache --l3_size=1MB --l3cache',
+    'v7': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=128kB --l2cache --l3_size=2MB --l3cache',
+    'v8': '--l1d_size=64kB --l1i_size=64kB --caches --l2_size=128kB --l2cache --l3_size=1MB --l3cache',
 }
 
 if __name__ == '__main__':
     benchmarks_to_run = get_benchmark(args.benchmark_type, args.benchmark, args.benchmark_index)
     logging.info("all benchmarks to run: \n" + json.dumps(benchmarks_to_run, indent=2))
-    cache_options = cache_options[args.version]
-    if args.mode == 'qemu':
+    cache_option = cache_options[args.version]
+    mode_option = mode_options[args.version]
+    if mode_option == 'qemu':
         qemu(benchmarks_to_run)
-    elif args.mode == 'gem5':
-        gem5(benchmarks_to_run, cache_options)
-    elif args.mode == 'qgem5':
-        qgem5(benchmarks_to_run, cache_options)
+    elif mode_option == 'gem5':
+        gem5(benchmarks_to_run, cache_option)
+    elif mode_option == 'qgem5':
+        qgem5(benchmarks_to_run, cache_option)
