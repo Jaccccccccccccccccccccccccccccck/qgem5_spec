@@ -67,6 +67,7 @@ QGEM5_COMMAND = QEMU_GEM5_PATH + 'build/ARM/gem5.opt \
     --options="{}" \
     --cpu-type=TimingSimpleCPU \
      {} \
+     {} \
     --mem-size=1099511627775'
 
 GEM5_COMMAND = 'nohup bash -c \'time ' + GEM5_PATH + 'build/ARM/gem5.opt ' \
@@ -74,6 +75,7 @@ GEM5_COMMAND = 'nohup bash -c \'time ' + GEM5_PATH + 'build/ARM/gem5.opt ' \
                + GEM5_PATH + 'configs/example/seL3.py ' \
                              '--cpu-type=TimingSimpleCPU ' \
                              '--mem-size=8GB ' \
+                             ' {} ' \
                              ' {} ' \
                              '-n 1 ' \
                              '--cmd={} ' \
@@ -157,44 +159,50 @@ ALL_TEST_BENCHMARKS = [
      'index': 1,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <capture.tst',
-
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'capture.tst'
      },
     {'name': '445.gobmk',
      'index': 2,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <connect.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'connect.tst'
      },
     {'name': '445.gobmk',
      'index': 3,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <connect_rot.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'connect_rot.tst'
      },
     {'name': '445.gobmk',
      'index': 4,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <connection.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'connection.tst'
      },
     {'name': '445.gobmk',
      'index': 5,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <connection_rot.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'connection_rot.tst'
      },
     {'name': '445.gobmk',
      'index': 6,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <cutstone.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'cutstone.tst'
      },
     {'name': '445.gobmk',
      'index': 7,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_test_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <dniwog.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'dniwog.tst'
      },
     {'name': '456.hmmer',
      'index': 1,
@@ -561,31 +569,36 @@ ALL_REF_BENCHMARKS = [
      'index': 1,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_ref_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <13x13.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': '13x13.tst'
      },
     {'name': '445.gobmk',
      'index': 2,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_ref_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <nngs.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'nngs.tst'
      },
     {'name': '445.gobmk',
      'index': 3,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_ref_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <score2.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'score2.tst'
      },
     {'name': '445.gobmk',
      'index': 4,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_ref_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <trevorc.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'trevorc.tst'
      },
     {'name': '445.gobmk',
      'index': 5,
      'type': 'int',
      'dir': '/benchmark/445.gobmk/run/run_base_ref_qemurio.0000',
-     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp <trevord.tst',
+     'cmd': '/benchmark/445.gobmk/exe/gobmk_base.qemurio --quiet --mode gtp',
+     'input': 'trevord.tst'
      },
     {'name': '456.hmmer',
      'index': 1,
@@ -695,9 +708,9 @@ def quit_qemu(child):
     logging.info('quit from qemu')
 
 
-def start_qgem5(input_dir, outdir, cmd, options, cache_options):
+def start_qgem5(input_dir, outdir, cmd, cmd_options, input, cache_options):
     os.chdir(input_dir)
-    command = 'time ' + QGEM5_COMMAND.format(outdir, cmd, options, cache_options)
+    command = 'time ' + QGEM5_COMMAND.format(outdir, cmd, cmd_options, input, cache_options)
     child = pexpect.spawn('bash', ['-c', command], timeout=TIMEOUT)
     logging.info('gem5 started.')
     logging.info(command)
@@ -744,6 +757,7 @@ def qgem5(benchmarks, cache_options):
             OUT_PATH + 'qgem5-' + bench['name'] + "-" + str(bench['index']) + '.m5out',
             benchmark_base_dir + bench['cmd'].split(" ", 1)[0],
             bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else '',
+            ('--input ' + bench['input']) if 'input' in bench else '',
             cache_options
         )
         if check_gem5(rchild):
@@ -782,6 +796,7 @@ def gem5(benchmarks, cache_options):
         cd_cmd = "cd " + benchmark_base_dir + bench['dir']
         gem5_run_spec_cmd = GEM5_COMMAND.format(
             OUT_PATH + 'gem5-' + bench['name'] + "-" + str(bench['index']) + '.m5out',
+            ('--input ' + bench['input']) if 'input' in bench else '',
             cache_options,
             benchmark_base_dir + bench['cmd'].split(" ", 1)[0],
             bench['cmd'].split(" ", 1)[1] if len(bench['cmd'].split(" ", 1)) > 1 else '',
